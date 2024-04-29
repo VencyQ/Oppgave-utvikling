@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Calculator</title>
+    <style>
+        .calculator {
+            width: 200px;
+            margin: 50px auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        .calculator button {
+            width: 45px;
+            height: 45px;
+            margin: 5px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <input type="text" id="display" disabled>
+    <br>
+    <button onclick="addToDisplay('1')">1</button>
+    <button onclick="addToDisplay('2')">2</button>
+    <button onclick="addToDisplay('3')">3</button>
+    <button onclick="addToDisplay('+')">+</button>
+    <br>
+    <button onclick="addToDisplay('4')">4</button>
+    <button onclick="addToDisplay('5')">5</button>
+    <button onclick="addToDisplay('6')">6</button>
+    <button onclick="addToDisplay('-')">-</button>
+    <br>
+    <button onclick="addToDisplay('7')">7</button>
+    <button onclick="addToDisplay('8')">8</button>
+    <button onclick="addToDisplay('9')">9</button>
+    <button onclick="addToDisplay('*')">*</button>
+    <br>
+    <button onclick="addToDisplay('0')">0</button>
+    <button onclick="clearDisplay()">C</button>
+    <button onclick="addToDisplay('/')">/</button>
+    <button onclick="calculate()">=</button>
+</div>
+
+<script>
+    let currentNumber = '';
+    let storedNumber = '';
+    let operation = '';
+
+    function addToDisplay(value) {
+        if (value === '+' || value === '-' || value === '*' || value === '/') {
+            if (currentNumber === '') return; // Prevent adding operator if no number entered
+            operation = value;
+            storedNumber = currentNumber;
+            currentNumber = '';
+        } else {
+            currentNumber += value;
+        }
+        document.getElementById('display').value = currentNumber;
+    }
+
+    function calculate() {
+        let result;
+        switch (operation) {
+            case '+':
+                result = parseFloat(storedNumber) + parseFloat(currentNumber);
+                break;
+            case '-':
+                result = parseFloat(storedNumber) - parseFloat(currentNumber);
+                break;
+            case '*':
+                result = parseFloat(storedNumber) * parseFloat(currentNumber);
+                break;
+            case '/':
+                if (parseFloat(currentNumber) === 0) {
+                    alert('Cannot divide by zero');
+                    clearDisplay();
+                    return;
+                }
+                result = parseFloat(storedNumber) / parseFloat(currentNumber);
+                break;
+        }
+        document.getElementById('display').value = result;
+        currentNumber = result.toString();
+        storedNumber = '';
+        operation = '';
+    }
+
+    function clearDisplay() {
+        currentNumber = '';
+        storedNumber = '';
+        operation = '';
+        document.getElementById('display').value = '';
+    }
+</script>
+
+</body>
+</html>

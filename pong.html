@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pong Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        canvas {
+            border: 1px solid black;
+            background-color: #eee;
+        }
+
+        button {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="pongCanvas" width="800" height="400"></canvas>
+    <div>
+        <button onclick="setDifficulty('easy')">Easy</button>
+        <button onclick="setDifficulty('medium')">Medium</button>
+        <button onclick="setDifficulty('hard')">Hard</button>
+    </div>
+    <script>
+        const canvas = document.getElementById("pongCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let ballX = canvas.width / 2;
+        let ballY = canvas.height / 2;
+        let ballSpeedX = 5;
+        let ballSpeedY = 5;
+
+        let paddle1Y = canvas.height / 2 - 50;
+        let paddle2Y = canvas.height / 2 - 50;
+        const paddleHeight = 100;
+        const paddleWidth = 10;
+
+        let player1Score = 0;
+        let player2Score = 0;
+
+        let difficulty = 'medium';
+
+        function setDifficulty(level) {
+            difficulty = level;
+            resetGame();
+        }
+
+        function resetGame() {
+            player1Score = 0;
+            player2Score = 0;
+            paddle1Y = canvas.height / 2 - 50;
+            paddle2Y = canvas.height / 2 - 50;
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            ballSpeedX = 5;
+            ballSpeedY = 5;
+        }
+
+        function drawRect(x, y, width, height, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, width, height);
+        }
+
+        function drawCircle(x, y, radius, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2, true);
+            ctx.fill();
+        }
+
+        function drawNet() {
+            for (let i = 0; i < canvas.height; i += 40) {
+                drawRect(canvas.width / 2 - 1, i, 2, 20, "black");
+            }
+        }
+
+        function drawScore() {
+            ctx.font = "20px Arial";
+            ctx.fillText(`Player 1: ${player1Score}`, 50, 30);
+            ctx.fillText(`Player 2: ${player2Score}`, canvas.width - 150, 30);
+        }
+
+        function draw() {
+            // Clear canvas
+            drawRect(0, 0, canvas.width, canvas.height, "#eee");
+
+            // Draw net
+            drawNet();
+
+            // Draw paddles
+            drawRect(0, paddle1Y, paddleWidth, paddleHeight, "black");
+            drawRect(canvas.width - paddleWidth, paddle2Y, paddleWidth, paddleHeight, "black");
+
+            // Draw ball
+            drawCircle(ballX, ballY, 10, "black");
+
+            // Draw score
+            drawScore();
+
+            // Update ball position
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Ball collision with walls
+            if (ballY < 0 || ballY > canvas.height) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            // Ball collision with paddles
+            if (ballX < paddleWidth && ballY > paddle1Y && ballY < paddle1Y + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            } else if (ballX > canvas.width - paddleWidth && ballY > paddle2Y && ballY < paddle2Y + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            // If ball goes out of the canvas
+            if (ballX < 0) {
+                player2Score++;
+                resetBall();
+            } else if (ballX > canvas.width) {
+                player1Score++;
+                resetBall();
+            }
+
+            // AI for the second player
+            let aiSpeed = 4;
+            if (difficulty === 'easy') {
+                aiSpeed = 2;
+            } else if (difficulty === 'medium') {
+                aiSpeed = 4;
+            } else if (difficulty === 'hard') {
+                aiSpeed = 6;
+            }
+
+            const paddle2Center = paddle2Y + paddleHeight / 2;
+            if (paddle2Center < ballY - 35) {
+                paddle2Y += aiSpeed;
+            } else if (paddle2Center > ballY + 35) {
+                paddle2Y -= aiSpeed;
+            }
+        }
+
+        function resetBall() {
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            ballSpeedX = -ballSpeedX;
+        }
+
+        canvas.addEventListener("mousemove", function (event) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseY = event.clientY - rect.top - paddleHeight / 2;
+            paddle1Y = mouseY;
+        });
+
+        function gameLoop() {
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
